@@ -3,10 +3,9 @@ config.json
 credential.json
 site_auth/auth.json
 
-# runtime data: generations and visitor photos (_project), anonymous usage data (_data)
+# runtime data: generations and visitor photos (_data/ is anonymous and IS committed)
 _project/
-_data/*
-!_data/README.md
+_data/*.lock
 _thumbnail_src/
 
 __pycache__/

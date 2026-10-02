@@ -305,18 +305,19 @@ de = data_log.load()
 of = lambda kind, **kw: [e for e in de if e["event"] == kind and all(e.get(k) == v for k, v in kw.items())]
 raw_data = data_log.EVENTS_PATH.read_text(encoding="utf-8")
 check("one 'created' event per project", len(of("created")) == len(list(project_store.PROJECT_DIR.glob("*/job.json"))) > 0)
+check("project ids never stored (they are video URLs)", not any(p.name in raw_data for p in project_store.PROJECT_DIR.iterdir()) and len(data_log.ref_for(pid)) == 12)
 check("nothing personal in _data", not any(x in raw_data for x in ("Ada", "ada@example.com", "a***@", "1.2.3.4", "TestUA", "owns the cafe", "data:image", "SECRET", "Subject1")))
-check("created: genre, story flag, device, models", of("created", id=pid)[0] | {"t": 0} == {"t": 0, "event": "created", "id": pid, "genre": "wuxia", "plot": True,
-      "device": "desktop", "image_model": "dola-seedream-5-0-pro-260628", "video_model": "dreamina-seedance-2-5-260628"}, of("created", id=pid))
-ok = of("finished", id=pid)
+check("created: genre, story flag, device, models", of("created", ref=data_log.ref_for(pid))[0] | {"t": 0} == {"t": 0, "event": "created", "ref": data_log.ref_for(pid), "genre": "wuxia", "plot": True,
+      "device": "desktop", "image_model": "dola-seedream-5-0-pro-260628", "video_model": "dreamina-seedance-2-5-260628"}, of("created", ref=data_log.ref_for(pid)))
+ok = of("finished", ref=data_log.ref_for(pid))
 check("finished (succeeded): timings, tokens, size", len(ok) == 1 and ok[0]["status"] == "succeeded" and ok[0]["timing"]["ark_total_s"] == 187
       and ok[0]["image_tokens"] == 16384 and ok[0]["video_tokens"] == 648000 and "stage" not in ok[0], ok)
 bad = of("finished", status="failed", stage="image")
 check("finished (failed): stage + error code", bad and bad[0]["code"] == "InputImageSensitiveContentDetected.PrivacyInformation" and "elapsed_s" in bad[0], bad)
 check("stage 'task' failures carry the task code", any(e["code"] for e in of("finished", status="failed", stage="task")))
 check("turned away by the daily limit", of("rejected", reason="daily_limit", genre="palace"))
-check("email outcomes", of("email", id=pid, status="sent") and of("email", status="failed"))
-check("likes: one event per change", [e["liked"] for e in of("liked", id=pid)] == [True, False])
+check("email outcomes", of("email", ref=data_log.ref_for(pid), status="sent") and of("email", status="failed"))
+check("likes: one event per change", [e["liked"] for e in of("liked", ref=data_log.ref_for(pid))] == [True, False])
 summary = data_report.summarise(de); rows = {r["genre"]: r for r in summary["genres"]}
 check("report: popularity and failure rate", summary["created"] == len(of("created")) and rows["wuxia"]["succeeded"] >= 1
       and summary["failure_pct"] is not None and len(rows) == len(appmod.genres.GENRES) and rows["wuxia"]["likes"] == 0

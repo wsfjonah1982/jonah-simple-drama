@@ -1,0 +1,42 @@
+{"t": "2026-10-01", "event": "created", "genre": "unknown", "imported": "drama-flow-00 SESSION.md: 14 projects on 2026-10-01 (12 by visitors, 2 by the site owner): 11 succeeded, 3 failed; drama and reason of the failures not recorded"}
+{"t": "2026-10-01", "event": "finished", "genre": "unknown", "status": "failed", "stage": "unknown", "imported": "drama-flow-00 SESSION.md: 14 projects on 2026-10-01 (12 by visitors, 2 by the site owner): 11 succeeded, 3 failed; drama and reason of the failures not recorded"}
+{"t": "2026-10-01", "event": "created", "genre": "unknown", "imported": "drama-flow-00 SESSION.md: 14 projects on 2026-10-01 (12 by visitors, 2 by the site owner): 11 succeeded, 3 failed; drama and reason of the failures not recorded"}
+{"t": "2026-10-01", "event": "finished", "genre": "unknown", "status": "failed", "stage": "unknown", "imported": "drama-flow-00 SESSION.md: 14 projects on 2026-10-01 (12 by visitors, 2 by the site owner): 11 succeeded, 3 failed; drama and reason of the failures not recorded"}
+{"t": "2026-10-01", "event": "created", "genre": "unknown", "imported": "drama-flow-00 SESSION.md: 14 projects on 2026-10-01 (12 by visitors, 2 by the site owner): 11 succeeded, 3 failed; drama and reason of the failures not recorded", "test": true}
+{"t": "2026-10-01", "event": "finished", "genre": "unknown", "status": "failed", "stage": "unknown", "imported": "drama-flow-00 SESSION.md: 14 projects on 2026-10-01 (12 by visitors, 2 by the site owner): 11 succeeded, 3 failed; drama and reason of the failures not recorded", "test": true}
+{"t": "2026-10-01T15:41:13", "event": "created", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "test": true, "t_is_email_time": true}
+{"t": "2026-10-01T15:41:13", "event": "finished", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "test": true, "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T15:41:13", "event": "email", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "test": true, "status": "sent", "attempts": 1}
+{"t": "2026-10-01T18:39:39", "event": "created", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T18:39:39", "event": "finished", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T18:39:39", "event": "email", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}
+{"t": "2026-10-01T18:45:41", "event": "created", "genre": "fantasy", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T18:45:41", "event": "finished", "genre": "fantasy", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T18:45:41", "event": "email", "genre": "fantasy", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}
+{"t": "2026-10-01T18:56:20", "event": "created", "genre": "revenge", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T18:56:20", "event": "finished", "genre": "revenge", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T18:56:20", "event": "email", "genre": "revenge", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}
+{"t": "2026-10-01T19:12:37", "event": "created", "genre": "palace", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T19:12:37", "event": "finished", "genre": "palace", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T19:12:37", "event": "email", "genre": "palace", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}
+{"t": "2026-10-01T19:32:01", "event": "created", "genre": "wuxia", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T19:32:01", "event": "finished", "genre": "wuxia", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T19:32:01", "event": "email", "genre": "wuxia", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}
+{"t": "2026-10-01T19:42:05", "event": "created", "genre": "wuxia", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T19:42:05", "event": "finished", "genre": "wuxia", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T19:42:05", "event": "email", "genre": "wuxia", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}
+{"t": "2026-10-01T19:51:13", "event": "created", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T19:51:13", "event": "finished", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T19:51:13", "event": "email", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}
+{"t": "2026-10-01T19:57:36", "event": "created", "genre": "revenge", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T19:57:36", "event": "finished", "genre": "revenge", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T19:57:36", "event": "email", "genre": "revenge", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}
+{"t": "2026-10-01T19:57:41", "event": "created", "genre": "palace", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T19:57:41", "event": "finished", "genre": "palace", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T19:57:41", "event": "email", "genre": "palace", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}
+{"t": "2026-10-01T21:51:37", "event": "created", "genre": "romance", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true, "test": true}
+{"t": "2026-10-01T21:51:37", "event": "finished", "genre": "romance", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true, "test": true}
+{"t": "2026-10-01T21:51:37", "event": "email", "genre": "romance", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1, "test": true}
+{"t": "2026-10-01T22:50:31", "event": "created", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "t_is_email_time": true}
+{"t": "2026-10-01T22:50:31", "event": "finished", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "succeeded", "t_is_email_time": true}
+{"t": "2026-10-01T22:50:31", "event": "email", "genre": "scifi", "imported": "drama-flow-00 emails_sent_2026-10-01.csv", "status": "sent", "attempts": 1}

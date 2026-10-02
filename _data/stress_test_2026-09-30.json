@@ -1,0 +1,38 @@
+{
+  "what": "Load test, not real visitors: 27 submissions through the public URL, 1 per second, gallery photos, genres in order x3",
+  "date": "2026-09-30T09:21",
+  "source": "drama-flow-00 SESSION.md (the project folders were deleted afterwards)",
+  "submitted": 27,
+  "accepted": 26,
+  "turned_away": {
+    "daily_limit": 1
+  },
+  "succeeded": 25,
+  "failed": 1,
+  "failure_reasons": {
+    "task: OutputAudioSensitiveContentDetected.PolicyViolation": 1
+  },
+  "failure_note": "Seedance judged the generated soundtrack possibly copyrighted; the app wrongly told the user the photo/story was blocked",
+  "timing_s": {
+    "image_api_s": {
+      "median": 48,
+      "max": 149
+    },
+    "queue_s": {
+      "median": 284,
+      "max": 794
+    },
+    "total_s": {
+      "median": 750,
+      "max": 1320
+    }
+  },
+  "seedance_concurrency": "about 10 tasks ran at a time",
+  "app_response_ms": "10-30",
+  "server_load": "about 0.05",
+  "video_mb": {
+    "min": 26,
+    "max": 39
+  },
+  "wall_time_min": 22.5
+}

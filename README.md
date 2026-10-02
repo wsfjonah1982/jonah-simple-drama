@@ -135,11 +135,11 @@ Everything useful for refining the app is collected in **`_data/`** at the proje
 
 | Event | Fields |
 |---|---|
-| `created` | project `id`, `genre`, `plot` (whether a story idea was typed), `device` (mobile / desktop), image and video model |
+| `created` | `ref` (a one-way hash of the project id), `genre`, `plot` (whether a story idea was typed), `device` (mobile / desktop), image and video model |
 | `rejected` | `reason` (`daily_limit`: a visitor was turned away), `genre` |
-| `finished` | `id`, `genre`, `status` (succeeded / failed), failure `stage` and `code`, `timing` (Seedream, queue, Seedance, end to end), token counts, video size |
-| `email` | `id`, `genre`, `status` (sent / failed), attempts, error code |
-| `liked` | `id`, `genre`, `liked` (true / false), recorded only when the label changes |
+| `finished` | `ref`, `genre`, `status` (succeeded / failed), failure `stage` and `code`, `timing` (Seedream, queue, Seedance, end to end), token counts, video size |
+| `email` | `ref`, `genre`, `status` (sent / failed), attempts, error code |
+| `liked` | `ref`, `genre`, `liked` (true / false), recorded only when the label changes |
 
 Read it with:
 
@@ -151,7 +151,7 @@ python -m services.data_report --json              # the same numbers as JSON
 
 The report shows, per drama: times picked, share, succeeded, failed, failure rate and likes. It then lists failure reasons by stage and error code, median and max timings, visitors turned away by the daily limit, email delivery, devices and generations per day. To add a new measurement, call `data_log.record("<event>", ...)` where it happens in `app.py` and count it in `services/data_report.py`.
 
-Back up `_data/` when moving servers; it is git-ignored.
+`_data/` is committed to git, so the history travels with the code. That is safe only because nothing personal is ever written to it: never log names, emails, IPs, photos, prompts, story text or raw project ids (a project id is the URL of a visitor's video, so events store `ref` instead). Check new fields against this rule before adding them; `tests/test_pipeline.py` checks the existing ones.
 
 ## Tests
 

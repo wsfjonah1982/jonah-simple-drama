@@ -9,4 +9,4 @@ Anonymous usage data for refining the app. Written by the app at runtime and nev
 The first lines of `events.jsonl` were imported from the earlier drama-flow-00 deployment (its projects were deleted on 2026-10-01). They carry an `imported` field naming the source, and they record less than live events: drama, outcome and email only, with the email time as `t`. Events marked `"test": true` are the site owner's own runs; the report leaves them out unless you pass `--include-tests`.
 
 No personal data is stored here: no names, emails, IP addresses, photos, prompts or story text.
-Only this README is committed; the data files are git-ignored. Summarise them with `python -m services.data_report`.
+Everything here is committed to git, so it must stay free of personal data. Project ids are stored only as `ref`, a one-way hash, because an id is the URL of a visitor's video. Summarise the data with `python -m services.data_report`.

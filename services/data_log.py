@@ -1,18 +1,20 @@
 """Anonymous usage data for refining the app, appended to _data/events.jsonl (one JSON object per line).
 
 _data/ sits next to _project/ but is never cleaned up with it, so the history survives deleting videos.
-Nothing personal is written: no name, email, IP address, photo, prompt or story text. Each line has
-`t` (local time), `event` and the fields below; `id` is the project id, so a line can be matched to its
-_project/<id>/ folder while that folder still exists.
+Nothing personal is written: no name, email, IP address, photo, prompt or story text, so the file can
+be published. Each line has `t` (local time), `event` and the fields below. `ref` is a one-way hash of the
+project id (`ref_for(id)`): the id is also the URL of the visitor's video and photo, so it is never stored,
+but a line can still be matched to its _project/<id>/ folder while that folder exists.
 
-    created    id, genre, plot (bool: the visitor typed a story idea), device ("mobile"/"desktop"), models
+    created    ref, genre, plot (bool: the visitor typed a story idea), device ("mobile"/"desktop"), models
     rejected   reason ("daily_limit"), genre
-    finished   id, genre, status ("succeeded"/"failed"), stage + code (failures), timing, tokens, video_mb
-    email      id, genre, status ("sent"/"failed"), attempts, code (failures)
-    liked      id, genre, liked (bool)
+    finished   ref, genre, status ("succeeded"/"failed"), stage + code (failures), timing, tokens, video_mb
+    email      ref, genre, status ("sent"/"failed"), attempts, code (failures)
+    liked      ref, genre, liked (bool)
 
 `python -m services.data_report` summarises the file.
 """
+import hashlib
 import json
 import os
 from datetime import datetime
@@ -32,8 +34,16 @@ def device(user_agent):
     return "mobile" if any(k in (user_agent or "") for k in ("Mobi", "Android", "iPhone", "iPad")) else "desktop"
 
 
+def ref_for(project_id):
+    """Short one-way hash of a project id: matches a folder, but can't be turned back into a video URL."""
+    return hashlib.sha256(project_id.encode()).hexdigest()[:12]
+
+
 def record(event, **fields):
-    """Append one event. Locked so lines from two gunicorn workers never interleave; never raises."""
+    """Append one event (an `id` field is stored as its `ref`). Locked so lines from two gunicorn workers
+    never interleave; never raises."""
+    if "id" in fields:
+        fields = {"ref": ref_for(fields.pop("id")), **fields}
     line = json.dumps({"t": datetime.now().isoformat(timespec="seconds"), "event": event, **fields},
                       ensure_ascii=False, default=str) + "\n"
     try:
