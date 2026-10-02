@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}My videos - Drama Flow{% endblock %}
+
+{% block content %}
+<h1>My videos</h1>
+<p class="muted">Every generation, newest first, with its result: the video when it passed, the reason when it failed.</p>
+
+<div class="tabs" id="tabs" role="tablist">
+  <button type="button" class="tab" role="tab" data-filter="all">All <span class="tab-count" data-count="all">0</span></button>
+  <button type="button" class="tab" role="tab" data-filter="passed">Passed <span class="tab-count" data-count="passed">0</span></button>
+  <button type="button" class="tab" role="tab" data-filter="failed">Failed <span class="tab-count" data-count="failed">0</span></button>
+  <button type="button" class="tab" role="tab" data-filter="progress">In progress <span class="tab-count" data-count="progress">0</span></button>
+  <button type="button" class="tab" role="tab" data-filter="liked">♥ Liked <span class="tab-count" data-count="liked">0</span></button>
+</div>
+
+<ul class="video-list" id="video-list"></ul>
+<p class="muted" id="empty-note" hidden></p>
+<p class="muted small" id="load-error" hidden></p>
+
+<dialog class="player-dialog" id="player-dialog" aria-label="Video player">
+  <button type="button" class="player-close" id="player-close" aria-label="Close">×</button>
+  <video id="dialog-video" class="dialog-video" controls playsinline></video>
+</dialog>
+
+<script>window.CREATE_URL = {{ url_for('index') | tojson }};</script>
+<script src="{{ static_v('js/videos.js') }}"></script>
+{% endblock %}

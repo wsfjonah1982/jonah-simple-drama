@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Drama Flow{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎬%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ static_v('css/style.css') }}">
+  <script>window.DRAMA_BASE = {{ request.script_root | tojson }};</script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('index') }}">🎬 Drama Flow</a>
+    <nav>
+      <a href="{{ url_for('index') }}">Create</a>
+      <a href="{{ url_for('videos') }}">My videos</a>
+      {# the login gate only exists behind nginx (script_root is "/drama" there, empty locally) #}
+      {% if request.script_root %}<a href="/_auth/logout">Log out</a>{% endif %}
+    </nav>
+  </header>
+
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

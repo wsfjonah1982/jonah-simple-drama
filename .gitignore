@@ -1,0 +1,15 @@
+# secrets and local settings (copy the *.example.json files)
+config.json
+credential.json
+site_auth/auth.json
+
+# runtime data: generations, visitor photos, usage counts
+_project/
+_stats/
+_thumbnail_src/
+
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.tmp

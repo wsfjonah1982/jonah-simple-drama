@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Drama Flow - Star in your own short drama{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Star in your own short drama</h1>
+  <p class="muted">Take a selfie, pick a genre, and AI turns you into the lead of a {{ duration }}-second vertical drama ({{ ratio }}, {{ resolution }}).</p>
+</section>
+
+<section class="step">
+  <h2><span class="step-no">1</span> Your face photo</h2>
+  <p class="photo-hint">Use a clear, front-facing photo of one person, with good light and no sunglasses or mask.</p>
+
+  <div class="photo-actions">
+    <button type="button" class="btn" id="photo-open-cam">Open camera</button>
+    <button type="button" class="btn" id="photo-take-btn">Take photo / upload</button>
+    <button type="button" class="btn btn-secondary" id="photo-gallery-btn" title="Pick a photo you uploaded in an earlier generation">Choose from gallery</button>
+  </div>
+  <!-- no capture attribute: phones then offer both the camera and the photo library -->
+  <input type="file" id="photo-take-input" accept="image/*" hidden>
+
+  <div class="photo-camera" id="photo-camera" hidden>
+    <video id="photo-video" class="photo-video" autoplay playsinline muted></video>
+    <div class="photo-actions">
+      <button type="button" class="btn" id="photo-capture-btn">Capture</button>
+      <button type="button" class="btn btn-secondary" id="photo-close-cam">Close camera</button>
+    </div>
+  </div>
+
+  <img id="photo-preview" class="photo-preview" alt="Your captured photo" hidden>
+  <p class="photo-status" id="photo-status" role="status"></p>
+
+  <dialog class="photo-picker" id="photo-picker" aria-label="Choose a photo you uploaded before">
+    <div class="picker-head">
+      <strong>Choose a photo</strong>
+      <button type="button" class="picker-close" id="picker-close" aria-label="Close">×</button>
+    </div>
+    <p class="muted small">Photos uploaded in earlier generations. Tap one to use it again.</p>
+    <div class="picker-grid" id="picker-grid"></div>
+    <p class="muted small" id="picker-note" hidden></p>
+  </dialog>
+</section>
+
+<section class="step">
+  <h2><span class="step-no">2</span> Pick a genre</h2>
+  <div class="genre-grid" id="genre-grid">
+    {% for g in genres %}
+    <label class="genre-card">
+      <input type="radio" name="genre" value="{{ g.id }}"{% if loop.first %} checked{% endif %}>
+      <span class="genre-body">
+        {% if g.id in genre_thumbs %}
+        <img class="genre-thumb" src="{{ static_v('img/genres/' ~ g.id ~ '.jpg') }}" alt="" width="360" height="480" loading="lazy">
+        {% endif %}
+        <span class="genre-emoji">{{ g.emoji }}</span>
+        <strong>{{ g.title }}</strong>
+        <span class="muted">{{ g.tagline }}</span>
+      </span>
+    </label>
+    {% endfor %}
+  </div>
+
+  <label class="field">
+    Story idea <span class="muted">(optional)</span>
+    <textarea id="plot" rows="2" maxlength="{{ max_plot_len }}" placeholder="e.g. My character secretly owns the coffee shop where the story starts"></textarea>
+  </label>
+</section>
+
+<section class="step">
+  <h2><span class="step-no">3</span> Generate</h2>
+
+  {% if needs_code %}
+  <label class="field">
+    Access code
+    <input type="password" id="access-code" autocomplete="off">
+  </label>
+  {% endif %}
+
+  <div class="contact-fields">
+    <label class="field">
+      Your name
+      <input type="text" id="contact-name" maxlength="80" autocomplete="name" required>
+    </label>
+    <label class="field">
+      Email
+      <input type="email" id="contact-email" maxlength="254" autocomplete="email" inputmode="email" required placeholder="name@example.com">
+    </label>
+  </div>
+  <p class="muted small">When your video is ready we email you a download link. The link works for about 24 hours, so save the video in time.</p>
+
+  <label class="consent">
+    <input type="checkbox" id="consent">
+    <span>The photo shows me, or I have the person's permission to use their face in an AI-generated video.</span>
+  </label>
+
+  <button type="button" class="btn btn-primary btn-wide" id="generate-btn" disabled>Generate my drama</button>
+  <p class="photo-status" id="generate-status" role="status"></p>
+  <p class="muted small">Two steps: first the AI draws your character from the photo, then it films the drama with that character. Allow about 10 minutes in total. You can leave the page: progress and the result stay under “My videos”.</p>
+</section>
+
+<script src="{{ static_v('js/create.js') }}"></script>
+{% endblock %}

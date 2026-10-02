@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ genre_title }} - Drama Flow{% endblock %}
+
+{% block content %}
+<h1>{{ genre_title }}</h1>
+
+<section class="watch" id="watch" data-job-id="{{ job_id }}">
+  <div class="progress" id="progress">
+    <div class="spinner" aria-hidden="true"></div>
+    <p id="progress-text">Sending your scene to the studio…</p>
+    <p class="muted small" id="progress-elapsed"></p>
+    <p class="muted small">Please keep this page open, or come back later from “My videos”.</p>
+  </div>
+
+  <div class="result" id="result" hidden>
+    <video id="player" class="player" controls playsinline loop></video>
+    <div class="photo-actions">
+      <a class="btn btn-primary" id="download-link" download="drama.mp4">Download video</a>
+      <a class="btn btn-secondary" href="{{ url_for('index') }}">Make another</a>
+    </div>
+  </div>
+
+  <div class="error-box" id="error-box" hidden>
+    <p id="error-text"></p>
+    <a class="btn btn-secondary" href="{{ url_for('index') }}">Try again</a>
+  </div>
+</section>
+
+<script src="{{ static_v('js/watch.js') }}"></script>
+{% endblock %}
