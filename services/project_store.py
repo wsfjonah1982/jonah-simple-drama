@@ -19,14 +19,14 @@ from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 
-import uploads_store
+from services import uploads_store
 
 try:
     import fcntl  # Linux (the server). Absent on Windows, where locking is skipped for local dev.
 except ImportError:
     fcntl = None
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent  # the project root, one level above services/
 PROJECT_DIR = BASE_DIR / "_project"
 
 _ID_RE = re.compile(r"^\d{8}-\d{6}-[0-9a-f]{12}$")

@@ -5,10 +5,11 @@ from pathlib import Path
 PROJECT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT))
 
-import genre_stats, project_store, seedance, seedream, uploads_store
+from services import data_log, data_report, genre_stats, project_store, seedance, seedream, uploads_store
 tmp = Path(tempfile.mkdtemp(prefix="drama_smoke_"))
 project_store.PROJECT_DIR = tmp / "_project"
-genre_stats.STATS_PATH = tmp / "_stats" / "genre_counts.json"
+genre_stats.STATS_PATH = tmp / "_data" / "genre_counts.json"
+data_log.EVENTS_PATH = tmp / "_data" / "events.jsonl"
 # Tests never use the real config.json / credential.json: the example config plus fake keys.
 seedance.CONFIG_PATH = PROJECT / "config.example.json"
 seedance.CREDENTIAL_PATH = Path(tempfile.mkdtemp()) / "credential.json"
@@ -278,7 +279,7 @@ seedance.get_config().pop("daily_limit_reset_at")
 seedance.get_config()["daily_limit"] = 10; seedance.get_config()["access_code"] = "sesame"
 check("access code required", post({"image": img, "genre": "palace", "consent": True}).status_code == 403)
 # ---- email retries, permanent refusal, switch
-import mailer
+from services import mailer
 def run_to_success(body):
     state.update(status="queued"); p = post(body).get_json()["job_id"]
     state.update(status="succeeded"); c.get(f"/api/jobs/{p}"); return p
@@ -297,6 +298,34 @@ mails.clear(); seedance.get_config()["mail_enabled"] = False
 p = run_to_success({"image": img, "genre": "fantasy", "consent": True})
 check("mail_enabled false: nothing sent", not mails and "email" not in job(p))
 seedance.get_config()["mail_enabled"] = True
+
+# ---- _data/events.jsonl: anonymous usage data
+import contextlib, io
+de = data_log.load()
+of = lambda kind, **kw: [e for e in de if e["event"] == kind and all(e.get(k) == v for k, v in kw.items())]
+raw_data = data_log.EVENTS_PATH.read_text(encoding="utf-8")
+check("one 'created' event per project", len(of("created")) == len(list(project_store.PROJECT_DIR.glob("*/job.json"))) > 0)
+check("nothing personal in _data", not any(x in raw_data for x in ("Ada", "ada@example.com", "a***@", "1.2.3.4", "TestUA", "owns the cafe", "data:image", "SECRET", "Subject1")))
+check("created: genre, story flag, device, models", of("created", id=pid)[0] | {"t": 0} == {"t": 0, "event": "created", "id": pid, "genre": "wuxia", "plot": True,
+      "device": "desktop", "image_model": "dola-seedream-5-0-pro-260628", "video_model": "dreamina-seedance-2-5-260628"}, of("created", id=pid))
+ok = of("finished", id=pid)
+check("finished (succeeded): timings, tokens, size", len(ok) == 1 and ok[0]["status"] == "succeeded" and ok[0]["timing"]["ark_total_s"] == 187
+      and ok[0]["image_tokens"] == 16384 and ok[0]["video_tokens"] == 648000 and "stage" not in ok[0], ok)
+bad = of("finished", status="failed", stage="image")
+check("finished (failed): stage + error code", bad and bad[0]["code"] == "InputImageSensitiveContentDetected.PrivacyInformation" and "elapsed_s" in bad[0], bad)
+check("stage 'task' failures carry the task code", any(e["code"] for e in of("finished", status="failed", stage="task")))
+check("turned away by the daily limit", of("rejected", reason="daily_limit", genre="palace"))
+check("email outcomes", of("email", id=pid, status="sent") and of("email", status="failed"))
+check("likes: one event per change", [e["liked"] for e in of("liked", id=pid)] == [True, False])
+summary = data_report.summarise(de); rows = {r["genre"]: r for r in summary["genres"]}
+check("report: popularity and failure rate", summary["created"] == len(of("created")) and rows["wuxia"]["succeeded"] >= 1
+      and summary["failure_pct"] is not None and len(rows) == len(appmod.genres.GENRES) and rows["wuxia"]["likes"] == 0
+      and any(k.startswith("image: InputImageSensitive") for k, _ in summary["failure_reasons"]), summary["failure_reasons"])
+out = io.StringIO()
+with contextlib.redirect_stdout(out): data_report.main([])
+check("report prints", "Last Sword of the Mist" in out.getvalue() and "Failure reasons" in out.getvalue())
+with contextlib.redirect_stdout(out := io.StringIO()): data_report.main(["--json", "--since", "2999-01-01"])
+check("report --since filters, --json is JSON", json.loads(out.getvalue())["events"] == 0)
 
 # ---- mailer unit checks (no network: fake DNS and fake SMTP)
 check("clean_email", mailer.clean_email(" a.b+c@mail.example.co ") == "a.b+c@mail.example.co" and mailer.clean_email("a@b") is None and mailer.clean_email("a@b.com\nBcc:x") is None)

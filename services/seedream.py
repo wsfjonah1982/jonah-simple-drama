@@ -13,7 +13,7 @@ import urllib.request
 
 import httpx
 
-import seedance
+from services import seedance
 
 
 ImageServiceError = seedance.ArkHttpError  # one shared class for every Ark endpoint

@@ -12,7 +12,7 @@ from pathlib import Path
 
 import httpx
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent  # the project root, one level above services/
 CONFIG_PATH = BASE_DIR / "config.json"
 CREDENTIAL_PATH = BASE_DIR / "credential.json"
 

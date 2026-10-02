@@ -15,8 +15,7 @@ import sys
 
 sys.path.insert(0, ".")
 import app
-import project_store
-import seedance
+from services import project_store, seedance
 
 if len(sys.argv) != 2:
     sys.exit(__doc__)

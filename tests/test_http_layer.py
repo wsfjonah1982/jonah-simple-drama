@@ -3,7 +3,8 @@ from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT))
-import httpx, seedance, seedream
+import httpx
+from services import seedance, seedream
 # Tests never use the real config.json / credential.json: the example config plus fake keys.
 seedance.CONFIG_PATH = PROJECT / "config.example.json"
 seedance.CREDENTIAL_PATH = Path(tempfile.mkdtemp()) / "credential.json"

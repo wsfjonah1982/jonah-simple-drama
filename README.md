@@ -1,6 +1,6 @@
 # Jonah Simple Drama
 
-A small web app that turns a selfie into the lead of a 30-second AI short drama. The visitor takes or uploads a face photo, picks one of nine genres (optionally adding a one-line story idea), and two BytePlus Ark models work in turn:
+A small web app that turns a selfie into the lead of a 30-second AI short drama. The visitor takes or uploads a face photo, picks one of nine dramas (optionally adding a one-line story idea; adding more is easy, see [Adding a new drama](#-adding-a-new-drama)), and two BytePlus Ark models work in turn:
 
 1. **Seedream 5.0 Pro** draws a three-view character sheet of the person in the genre's costume.
 2. **Seedance 2.5** films a 9:16, 720p, 30 s video with sound and dialogue, using that sheet as the reference image.
@@ -26,6 +26,67 @@ The live camera only works over HTTPS or on `localhost`. Uploading a photo works
 
 Each generation makes two paid API calls (one image, one video). `daily_limit` caps how many generations the server accepts per day. `access_code`, when set, must be entered on the create page.
 
+## ⭐ Adding a new drama
+
+Each drama (genre) is one entry in the `GENRES` list in **`services/genres.py`**. That entry is the whole story: the app builds both AI prompts from it, and the new card appears on the create page automatically. No other code changes are needed.
+
+### 1. Add the entry
+
+Copy this to the end of `GENRES` in `services/genres.py` and fill it in:
+
+```python
+    {
+        "id": "detective",                 # short, lowercase letters only; used in URLs and file names, never change it later
+        "title": "The Last Clue",          # shown on the card, in My videos and in the email subject
+        "tagline": "Noir detective mystery",  # one short phrase; also tells Seedream what kind of lead to draw
+        "emoji": "🕵️",                     # shown on the card when there is no thumbnail
+        "setting": "A rain-soaked 1940s city at night. Black-and-white film noir look, hard shadows, slow smoky camera moves.",
+        "costume": "a belted grey trench coat over a dark suit, with a fedora",  # one outfit, kept in every shot
+        "beats": [                         # five shots, about 6 s each in a 30 s video
+            "[WS, slow push-in] <Subject1> ... (music cue) <sound cue>",
+            "[CU, static] <Subject1> ... Dialogue (Subject1, tense): {A line of English dialogue.}",
+            "[MS, over the shoulder] <Subject2>, a ..., ...",
+            "[MCU, handheld] ...",
+            "[WS, slow pull-back] ... Dialogue (Subject1, quietly): {Closing line.} (music fades)",
+        ],
+    },
+```
+
+### 2. Writing rules for the beats
+
+- **`<Subject1>`** is always the visitor (the lead). **`<Subject2>`** is an optional supporting character. Don't add more leads: the video must never show two copies of the visitor.
+- Start each beat with a **camera tag** in square brackets: `[WS]` wide, `[MS]` medium, `[MCU]` medium close-up, `[CU]` close-up, `[EWS]` extreme wide, plus a move (`slow push-in`, `static`, `handheld`, `tracking`, ...).
+- Dialogue: `Dialogue (Subject1, tone): {line}`. Use short English lines; a 6 s shot fits about one sentence.
+- Music cues go in `( )`, sound effects in `< >`.
+- Keep it wholesome: no violence shown in detail, no nudity, no real people or brands. Seedance rejects these, and the visitor's run fails.
+- **Never write a double hyphen (`--`)** anywhere: the model silently drops everything after it. Also don't write on-screen text, since the prompt asks for none.
+
+### 3. Preview the prompts (free)
+
+```bash
+python -c "from services import genres; g = genres.get_genre('detective'); print(genres.build_character_prompt(g, 'Cinematic Realism')); print(); print(genres.build_prompt(g, ''))"
+```
+
+This prints exactly what Seedream and Seedance will receive. Then run the tests (`python tests/test_pipeline.py`) to check that nothing broke.
+
+### 4. Add a card thumbnail (optional, one paid image)
+
+Without a thumbnail the card shows the emoji. To make one, add a line for the new id to `SCENES` in `deploy/make_genre_thumbnails.py` (one key moment, a fictional lead), then:
+
+```bash
+pip install pillow
+python deploy/make_genre_thumbnails.py detective
+```
+
+It writes `static/img/genres/detective.jpg` (360x480). The full-size poster goes to `_thumbnail_src/`, which is not committed.
+
+### 5. Ship it
+
+- Restart the app. On a server, deploy `services/genres.py` (and the thumbnail), then restart `drama-app` **only when no project is `image_generating` or `submitting`**.
+- A new drama starts with zero picks, so it appears near the end of the grid until visitors choose it (cards are ordered by popularity, see `services/genre_stats.py`).
+- The grid is 3 cards wide (2 on phones), so a count that divides by 3 looks tidiest.
+- To retire a drama, delete its entry. Old videos of that genre still play and show the title "Drama".
+
 ## Configuration (`config.json`)
 
 | Key | Meaning |
@@ -47,18 +108,50 @@ The config is cached, so restart the app after changing it.
 
 ```
 app.py              routes, background pipeline (Seedream then Seedance), polling, email
-genres.py           the nine genres and the two prompt builders
-genre_stats.py      pick counts per genre; the create page shows the most picked genres first
-seedance.py         Seedance client + shared endpoint / key / error helpers
-seedream.py         Seedream client
-project_store.py    _project/<id>/ folders, job.json, logs, daily count
-uploads_store.py    face-photo validation
-mailer.py           "video ready" email (SMTP relay or direct to MX)
+services/
+  genres.py         the nine genres and the two prompt builders
+  genre_stats.py    pick counts per genre; the create page shows the most picked genres first
+  data_log.py       anonymous usage events -> _data/events.jsonl
+  data_report.py    summary of _data: popularity, failure rate, timings (python -m services.data_report)
+  seedance.py       Seedance client + shared endpoint / key / error helpers
+  seedream.py       Seedream client
+  project_store.py  _project/<id>/ folders, job.json, logs, daily count
+  uploads_store.py  face-photo validation
+  mailer.py         "video ready" email (SMTP relay or direct to MX)
 templates/, static/ pages: create, watch, My videos
 site_auth/          optional login gate service for nginx auth_request
 deploy/             systemd unit, nginx snippet, thumbnail generator, resume script
 tests/              offline tests (mocks only, no network, no spend)
 ```
+
+## Usage data (`_data/`)
+
+Everything useful for refining the app is collected in **`_data/`** at the project root. It is separate from `_project/`, so deleting videos and photos never deletes it, and it holds **no personal data**: no names, emails, IP addresses, photos, prompts or story text.
+
+| File | What it holds |
+|---|---|
+| `_data/events.jsonl` | One JSON line per event (below), appended as things happen |
+| `_data/genre_counts.json` | How often each drama was picked; orders the cards on the create page |
+
+| Event | Fields |
+|---|---|
+| `created` | project `id`, `genre`, `plot` (whether a story idea was typed), `device` (mobile / desktop), image and video model |
+| `rejected` | `reason` (`daily_limit`: a visitor was turned away), `genre` |
+| `finished` | `id`, `genre`, `status` (succeeded / failed), failure `stage` and `code`, `timing` (Seedream, queue, Seedance, end to end), token counts, video size |
+| `email` | `id`, `genre`, `status` (sent / failed), attempts, error code |
+| `liked` | `id`, `genre`, `liked` (true / false), recorded only when the label changes |
+
+Read it with:
+
+```bash
+python -m services.data_report                     # tables
+python -m services.data_report --since 2026-10-01  # only recent events
+python -m services.data_report --json              # the same numbers as JSON
+```
+
+The report shows, per drama: times picked, share, succeeded, failed, failure rate and likes. It then lists failure reasons by stage and error code, median and max timings, visitors turned away by the daily limit, email delivery, devices and generations per day. To add a new measurement, call `data_log.record("<event>", ...)` where it happens in `app.py` and count it in `services/data_report.py`.
+
+Back up `_data/` when moving servers; it is git-ignored.
 
 ## Tests
 

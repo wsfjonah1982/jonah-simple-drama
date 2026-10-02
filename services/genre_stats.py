@@ -1,6 +1,6 @@
-"""How often each genre has been picked, kept in _stats/genre_counts.json.
+"""How often each genre has been picked, kept in _data/genre_counts.json.
 
-Lives outside _project/ so deleting projects does not reset it. The create page orders its genre cards by
+Lives in _data/, outside _project/, so deleting projects does not reset it. The create page orders its genre cards by
 these counts, most picked first (ties keep the order in genres.GENRES).
 """
 import json
@@ -12,11 +12,11 @@ try:
 except ImportError:
     fcntl = None
 
-BASE_DIR = Path(__file__).resolve().parent
-STATS_PATH = BASE_DIR / "_stats" / "genre_counts.json"
+BASE_DIR = Path(__file__).resolve().parent.parent  # the project root, one level above services/
+STATS_PATH = BASE_DIR / "_data" / "genre_counts.json"
 
-# Starting order when the file does not exist yet (picks counted during the first day online).
-SEED_COUNTS = {"scifi": 4, "revenge": 2, "wuxia": 2, "palace": 2, "fantasy": 1, "romance": 1}
+# Starting order when the file does not exist yet: visitors' finished videos on the first day online (2026-10-01).
+SEED_COUNTS = {"scifi": 3, "revenge": 2, "wuxia": 2, "palace": 2, "fantasy": 1}
 
 
 def load():
@@ -32,7 +32,7 @@ def record(genre_id):
     """Add one pick. Locked so two gunicorn workers never lose an update; never raises."""
     try:
         STATS_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with (STATS_PATH.parent / ".lock").open("w") as lock:
+        with (STATS_PATH.parent / ".genre_counts.lock").open("w") as lock:
             if fcntl:
                 fcntl.flock(lock, fcntl.LOCK_EX)
             counts = load()

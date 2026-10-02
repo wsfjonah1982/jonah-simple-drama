@@ -8,13 +8,7 @@ from datetime import datetime
 from flask import Flask, render_template, request, jsonify, url_for, abort, send_from_directory
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-import genre_stats
-import genres
-import mailer
-import project_store
-import seedance
-import seedream
-import uploads_store
+from services import data_log, genre_stats, genres, mailer, project_store, seedance, seedream, uploads_store
 
 app = Flask(__name__)
 # Behind nginx the app is served under /drama/. nginx sends X-Forwarded-Prefix, and ProxyFix turns it
@@ -133,6 +127,7 @@ def generate():
         return jsonify({"error": "Please take or upload a face photo first."}), 400
 
     if project_store.count_created_today(cfg.get("daily_limit_reset_at")) >= cfg.get("daily_limit", 10):
+        data_log.record("rejected", reason="daily_limit", genre=genre["id"])
         return jsonify({"error": "Today's video limit has been reached. Please try again tomorrow."}), 429
 
     plot = genres.clean_plot(payload.get("plot"))
@@ -147,6 +142,8 @@ def generate():
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400
     genre_stats.record(genre["id"])
+    data_log.record("created", id=job["id"], genre=genre["id"], plot=bool(plot), device=data_log.device(client["user_agent"]),
+                    image_model=cfg["image_model_id"], video_model=cfg["video_model_id"])
 
     # Seedream can take minutes, so the two steps run in the background and the page follows along in My videos.
     spawn(_run_pipeline, job["id"])
@@ -252,6 +249,7 @@ def _fail(job, stage, friendly, detail, task=None):
     project_store.save(job)
     project_store.log(job["id"], "failed", error=job["error_detail"], friendly=friendly,
                       usage=job["usage"], elapsed_s=round(_seconds_since(job["created_at"]), 1))
+    data_log.record("finished", **data_log.finished_fields(job))
 
 
 def _ark_seconds(ts):
@@ -306,6 +304,7 @@ def _finish_success(job, task):
     project_store.save(job)
     project_store.log(pid, "succeeded", usage=job["usage"], timing=timing, video=job["video"],
                       ark_finished_at=job.get("ark_finished_at"))
+    data_log.record("finished", **data_log.finished_fields(job))
     if (job.get("notify") or {}).get("email") and seedance.get_config().get("mail_enabled", True):
         job["email"] = {"status": "queued"}
         project_store.save(job)
@@ -334,16 +333,20 @@ def _send_ready_email(project_id):
             if final:
                 job["email"] = {"status": "failed", "at": _now(), "attempts": attempt, "error": exc.as_dict()}
                 project_store.save(job)
+                data_log.record("email", id=project_id, genre=job["genre"], status="failed", attempts=attempt,
+                                code=exc.as_dict().get("code"))
                 return
             continue
         except Exception as exc:  # a bug must not kill the thread silently
             job["email"] = {"status": "failed", "at": _now(), "attempts": attempt, "error": seedance.describe_error(exc)}
             project_store.save(job)
             project_store.log(project_id, "email_failed", to=to, attempt=attempt, error=job["email"]["error"])
+            data_log.record("email", id=project_id, genre=job["genre"], status="failed", attempts=attempt, code="internal")
             return
         job["email"] = {"status": "sent", "at": _now(), "attempts": attempt, **result}
         project_store.save(job)
         project_store.log(project_id, "email_sent", to=to, attempt=attempt, **result)
+        data_log.record("email", id=project_id, genre=job["genre"], status="sent", attempts=attempt)
         return
 
 
@@ -526,11 +529,14 @@ def projects():
 @app.route("/api/projects/<project_id>/like", methods=["POST"])
 def like(project_id):
     """Set (not toggle) the like label, so a double click or a retry can't flip it back."""
-    if not project_store.load(project_id):
+    job = project_store.load(project_id)
+    if not job:
         abort(404)
     payload = request.get_json(silent=True) or {}
     if not isinstance(payload.get("liked"), bool):
         return jsonify({"error": "Send {\"liked\": true} or {\"liked\": false}."}), 400
+    if payload["liked"] != project_store.is_liked(project_id):  # count changes only, not repeated clicks
+        data_log.record("liked", id=project_id, genre=job["genre"], liked=payload["liked"])
     project_store.set_liked(project_id, payload["liked"])
     return jsonify({"id": project_id, "liked": project_store.is_liked(project_id)})
 

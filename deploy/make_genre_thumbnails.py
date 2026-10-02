@@ -21,9 +21,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 os.chdir(ROOT)
 
-import genres  # noqa: E402
-import seedance  # noqa: E402
-import seedream  # noqa: E402
+from services import genres, seedance, seedream  # noqa: E402
 
 SRC_DIR = os.path.join(ROOT, "_thumbnail_src")
 OUT_DIR = os.path.join(ROOT, "static", "img", "genres")
